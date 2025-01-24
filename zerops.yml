@@ -56,6 +56,6 @@ zerops:
         - port: 8055
           httpSupport: true
       initCommands:
-        - zsc execOnce bootstrap -- npx directus bootstrap
-        - npx directus schema apply --yes snapshot.yaml
+        - zsc execOnce bootstrap -- directus bootstrap
+        - directus schema apply --yes snapshot.yaml
       start: directus start
