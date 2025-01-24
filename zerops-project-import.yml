@@ -1,0 +1,20 @@
+#yamlPreprocessor=on
+project:
+  name: directus
+services:
+  - hostname: storage
+    type: object-storage
+    objectStorageSize: 2
+
+  - hostname: redis
+    type: valkey@7.2
+    mode: NON_HA
+
+  - hostname: directus
+    type: nodejs@22
+    envSecrets:
+      SECRET: <@generateRandomString(<32>)>
+
+  - hostname: db
+    type: postgresql@16
+    mode: NON_HA
