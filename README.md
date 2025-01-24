@@ -94,6 +94,61 @@ To adapt this recipe for your needs:
 
 The resulting setup will provide a ready-to-deploy Directus instance with your specific configurations.
 
+## Production Deployment Guidelines
+
+#### Database Layer
+- Enable **High Availability** mode for PostgreSQL service
+- Configure appropriate backup strategies
+
+#### Cache Layer
+- Upgrade Redis to **HA mode** for enhanced reliability
+- Zerops HA Redis (Valkey) implementation automatically handles master/replica routing:
+    - Write operations are directed to master
+    - Read operations are distributed across all nodes
+    - No manual sentinel configuration required
+
+### Multi-Container Setup
+
+When scaling Directus across multiple containers, implement these adjustments:
+
+1. **Redis Configuration**
+
+See: https://docs.directus.io/self-hosted/config-options.html#redis
+
+### Email Configuration
+
+For production environments:
+1. Replace the development `mailpit` service with a production-ready email service
+2. Configure appropriate email credentials in environment variables
+3. Verify email template rendering and delivery
+
+### Schema Management
+
+Implement robust schema version control:
+
+```bash
+# Wrap schema applications in execOnce to prevent duplicate migrations on multiple containers.
+zsc execOnce "migrate-${appVersionId}" -- directus schema apply --yes snapshot.yaml
+```
+
+This approach ensures:
+- One-time execution of migrations
+- Version-specific schema updates
+- Reliable deployment across environments
+
+### Pre-Production Checklist
+
+- [ ] Enable HA mode for PostgreSQL
+- [ ] Configure HA Redis
+- [ ] Remove development services (e.g., mailpit)
+- [ ] Configure production email service
+- [ ] Review and update environment variables
+- [ ] Test schema migration process
+- [ ] Verify backup procedures
+- [ ] Review security settings
+
+> **Note**: These guidelines represent baseline production considerations. Additional optimizations may be necessary based on specific use cases and requirements.
+
 ## Additional Resources
 
 - [Zerops Documentation](https://docs.zerops.io)
