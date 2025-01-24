@@ -1,0 +1,32 @@
+zerops:
+  - setup: directus
+    build:
+      base: nodejs@22
+      buildCommands:
+        - npm i
+      deployFiles:
+        - ./
+    run:
+      base: nodejs@22
+      prepareCommands:
+        - npm i -g directus
+      envVariables:
+        PUBLIC_URL: ${zeropsSubdomain}
+        REDIS: ${redis_connectionString}
+        DB_CLIENT: pg
+        DB_CONNECTION_STRING: ${db_connectionString}/${db_dbName}
+        RATE_LIMITER_ENABLED: true
+        RATE_LIMITER_STORE: redis
+        CACHE_ENABLED: true
+        CACHE_STORE: redis
+        STORAGE_S3_KEY: ${storage_accessKeyId}
+        STORAGE_S3_SECRET: ${storage_secretAccessKey}
+        STORAGE_S3_BUCKET: ${storage_bucketName}
+        STORAGE_S3_REGION: us-east-1
+        STORAGE_S3_ENDPOINT1: ${storage_apiUrl}
+        STORAGE_S3_FORCE_PATH_STYLE: true
+        EMAIL_FROM: no-reply@example.com
+      ports:
+        - port: 8055
+          httpSupport: true
+      start: directus start
