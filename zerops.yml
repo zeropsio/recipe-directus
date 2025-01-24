@@ -6,27 +6,56 @@ zerops:
         - npm i
       deployFiles:
         - ./
+      cache: 
+        - node_modules
     run:
       base: nodejs@22
       prepareCommands:
         - npm i -g directus
       envVariables:
         PUBLIC_URL: ${zeropsSubdomain}
-        REDIS: ${redis_connectionString}
         DB_CLIENT: pg
         DB_CONNECTION_STRING: ${db_connectionString}/${db_dbName}
+        
+        # Fill out the redis configuration for HA deployments.
+        # See: https://docs.directus.io/self-hosted/config-options.html#redis
+        REDIS: ${redis_connectionString}
+        
         RATE_LIMITER_ENABLED: true
         RATE_LIMITER_STORE: redis
+        
+        # Adjust accordingly depending on your setup.
+        # https://docs.directus.io/self-hosted/config-options.html#cache
         CACHE_ENABLED: true
         CACHE_STORE: redis
+        CACHE_AUTO_PURGE: true
+        CACHE_TTL: 5m
+        
+        STORAGE_LOCATIONS: s3
+        STORAGE_S3_DRIVER: s3
         STORAGE_S3_KEY: ${storage_accessKeyId}
         STORAGE_S3_SECRET: ${storage_secretAccessKey}
         STORAGE_S3_BUCKET: ${storage_bucketName}
         STORAGE_S3_REGION: us-east-1
-        STORAGE_S3_ENDPOINT1: ${storage_apiUrl}
+        STORAGE_S3_ENDPOINT: ${storage_apiUrl}
         STORAGE_S3_FORCE_PATH_STYLE: true
+        
         EMAIL_FROM: no-reply@example.com
+        EMAIL_TEMPLATES_PATH: ./templates
+        # Adjust accordingly depending on your setup.
+        # https://docs.directus.io/self-hosted/config-options.html#smtp-smtp
+        EMAIL_TRANSPORT: smtp
+        EMAIL_SMTP_HOST: mailpit
+        EMAIL_SMTP_PORT: 1025
+        
+        # Adjust accordingly depending on your setup.
+        # https://docs.directus.io/self-hosted/config-options.html#cors
+        CORS_ENABLED: true
+        CORS_ORIGIN: true
       ports:
         - port: 8055
           httpSupport: true
+      initCommands:
+        - zsc execOnce bootstrap -- npx directus bootstrap
+        - npx directus schema apply --yes snapshot.yaml
       start: directus start

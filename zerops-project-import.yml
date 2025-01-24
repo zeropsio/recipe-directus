@@ -1,6 +1,9 @@
 #yamlPreprocessor=on
 project:
-  name: directus
+  name: recipe-directus
+  tags:
+    - zerops-recipe
+    - headless-cms
 services:
   - hostname: storage
     type: object-storage
@@ -10,11 +13,21 @@ services:
     type: valkey@7.2
     mode: NON_HA
 
+  - hostname: db
+    type: postgresql@16
+    mode: NON_HA
+
+  - hostname: mailpit
+    type: alpine@3.20
+    buildFromGit: https://github.com/zeropsio/recipe-mailpit
+    enableSubdomainAccess: true
+
   - hostname: directus
     type: nodejs@22
     envSecrets:
       SECRET: <@generateRandomString(<32>)>
-
-  - hostname: db
-    type: postgresql@16
-    mode: NON_HA
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: <@generateRandomString(<12>)>
+      ADMIN_TOKEN: <@generateRandomString(<32>)>
+    buildFromGit: https://github.com/zeropsio/recipe-directus
+    enableSubdomainAccess: true

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directus Image Gallery</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+        .image-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+        .image-card:hover {
+            transform: translateY(-4px);
+        }
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .image-info {
+            padding: 15px;
+        }
+        .image-info h3 {
+            margin: 0;
+            color: #333;
+        }
+        .image-date {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #666;
+        }
+        .error {
+            background: #fee;
+            color: #c00;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Directus Image Gallery</h1>
+    <div id="gallery" class="gallery">
+        <div class="loading">Loading images...</div>
+    </div>
+
+    <script>
+        const API_URL = 'https://directus-b83-8055.prg1.zerops.app';
+        
+        async function fetchImages() {
+            try {
+                const response = await fetch(`${API_URL}/items/images?sort=-date_created`);
+                if (!response.ok) throw new Error('Failed to fetch images');
+                
+                const data = await response.json();
+                return data.data;
+            } catch (error) {
+                console.error('Error fetching images:', error);
+                throw error;
+            }
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function createImageCard(image) {
+            return `
+                <div class="image-card">
+                    <img src="${API_URL}/assets/${image.image}" alt="${image.title || 'Untitled'}">
+                    <div class="image-info">
+                        <h3>${image.title || 'Untitled'}</h3>
+                        <div class="image-date">${formatDate(image.date_created)}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function initGallery() {
+            const galleryElement = document.getElementById('gallery');
+            
+            try {
+                const images = await fetchImages();
+                
+                if (images.length === 0) {
+                    galleryElement.innerHTML = '<div class="loading">No images found</div>';
+                    return;
+                }
+
+                galleryElement.innerHTML = images.map(createImageCard).join('');
+            } catch (error) {
+                galleryElement.innerHTML = `
+                    <div class="error">
+                        Failed to load images. Please try again later.
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize the gallery when the page loads
+        initGallery();
+    </script>
+</body>
+</html>
