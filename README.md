@@ -8,43 +8,14 @@ This repository demonstrates how to set up and deploy Directus applications usin
 
 ## Deploy on Zerops
 
-You manually copy the [import yaml](https://github.com/zeropsio/recipe-directus/blob/main/zerops-project-import.yml) to the import dialog in the Zerops app.
+You can either click the deploy button to deploy development setup directly on Zerops or manually copy
+the [import yaml](https://github.com/zeropsio/recipe-directus/blob/main/zerops-project-import.yml) to the
+import dialog in the Zerops app.
 
-```yaml
-#yamlPreprocessor=on
-project:
-  name: recipe-directus
-  tags:
-    - zerops-recipe
-    - headless-cms
-services:
-  - hostname: storage
-    type: object-storage
-    objectStorageSize: 2
+[![Deploy on Zerops](https://github.com/zeropsio/recipe-shared-assets/blob/main/deploy-button/green/deploy-button.svg)](https://app.zerops.io/recipe/directus)
 
-  - hostname: redis
-    type: valkey@7.2
-    mode: NON_HA
+<br/>
 
-  - hostname: db
-    type: postgresql@16
-    mode: NON_HA
-
-  - hostname: mailpit
-    type: alpine@3.20
-    buildFromGit: https://github.com/zeropsio/recipe-mailpit
-    enableSubdomainAccess: true
-
-  - hostname: directus
-    type: nodejs@22
-    envSecrets:
-      SECRET: <@generateRandomString(<32>)>
-      ADMIN_EMAIL: admin@example.com
-      ADMIN_PASSWORD: <@generateRandomString(<12>)>
-      ADMIN_TOKEN: <@generateRandomString(<32>)>
-    buildFromGit: https://github.com/zeropsio/recipe-directus
-    enableSubdomainAccess: true
-```
 
 ## Recipe Features
 
